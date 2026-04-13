@@ -1,0 +1,15 @@
+services:
+  telebot:
+    build: .
+    container_name: netdata-telebot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - LOG_LEVEL=INFO
+    # No ports needed — bot uses outbound polling only
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
