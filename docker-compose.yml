@@ -2,12 +2,19 @@ services:
   telebot:
     build: .
     container_name: netdata-telebot
-    restart: unless-stopped
+    restart: always
     env_file:
       - .env
     environment:
       - LOG_LEVEL=INFO
-    # No ports needed — bot uses outbound polling only
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'python bot.py' || exit 1"]
+      interval: 40s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
     logging:
       driver: json-file
       options:
