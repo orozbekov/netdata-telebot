@@ -31,6 +31,9 @@ jobs:
         run: ruff check .
 
       - name: Run tests
+        env:
+          TELEGRAM_BOT_TOKEN: "123456789:FAKE_TOKEN_FOR_TESTS"
+          LOG_LEVEL: "DEBUG"
         run: pytest tests/ -v
 
   deploy:
