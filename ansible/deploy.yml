@@ -1,0 +1,47 @@
+---
+- name: Deploy Telebot via Ansible
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: 1. Создание папки приложения
+      file:
+        path: "/home/{{ ansible_user }}/netdata-telebot"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
+    - name: 2. Копирование файлов проекта (код, докер, зависимости)
+      copy:
+        src: "../{{ item }}"
+        dest: "/home/{{ ansible_user }}/netdata-telebot/{{ item }}"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+      loop:
+        - docker-compose.yml
+        - Dockerfile
+        - bot.py
+        - requirements.txt
+        - app/  # Раскомментируй, если у тебя есть папка app
+
+    - name: 3. Генерация .env файла
+      copy:
+        dest: "/home/{{ ansible_user }}/netdata-telebot/.env"
+        content: |
+          TELEGRAM_BOT_TOKEN={{ lookup('env', 'BOT_TOKEN') }}
+          LOG_LEVEL=INFO
+        owner: "{{ ansible_user }}"
+        mode: '0600'
+
+    - name: 4. Запуск контейнеров (v2)
+      community.docker.docker_compose_v2:
+        project_src: "/home/{{ ansible_user }}/netdata-telebot"
+        state: present
+        build: always
+        pull: always
+      register: output
+
+    - name: 5. Вывод статуса
+      debug:
+        var: output
