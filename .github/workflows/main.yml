@@ -44,7 +44,7 @@ jobs:
   # 2. Если тесты прошли — деплоим через Ansible
   deploy:
     name: Deploy to Server via Ansible
-    runs-on: ubuntu-latest 
+    runs-on: [self-hosted, netdata-runner] 
     needs: lint-and-test
     if: github.event_name == 'push'
 
