@@ -63,12 +63,13 @@ jobs:
 
       - name: Run Ansible Playbook
         env:
-          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }} # Важно: используй имя секрета как в GitHub
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           ANSIBLE_HOST_KEY_CHECKING: "False"
         run: |
           ansible-playbook -i "${{ secrets.SERVER_IP }}," \
           -u devops \
           --private-key ~/.ssh/id_rsa \
+          --extra-vars "ansible_become_pass=${{ secrets.ANSIBLE_BECOME_PASS }}" \
           ansible/deploy.yml
 
       - name: Notification on Success
