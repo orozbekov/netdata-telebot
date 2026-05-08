@@ -58,6 +58,8 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           
+      - name: Install Ansible collections
+        run: ansible-galaxy collection install community.docker
 
       - name: Run Ansible Playbook
         env:
