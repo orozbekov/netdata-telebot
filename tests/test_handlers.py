@@ -26,7 +26,7 @@ async def test_handle_id_replies_with_chat_id() -> None:
 
     message.answer.assert_awaited_once()
     reply_text: str = message.answer.call_args[0][0]
-    assert "-100123456" in reply_text
+    assert "-100123456_ERROR_TEST" in reply_text
 
 
 @pytest.mark.asyncio
