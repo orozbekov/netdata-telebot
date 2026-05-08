@@ -2,7 +2,7 @@
 Unit tests for bot handlers.
 Run with: pytest tests/ -v
 """
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
