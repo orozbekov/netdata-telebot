@@ -1,0 +1,61 @@
+name: CI/CD for Netdata Bot
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  
+
+jobs:
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff pytest pytest-asyncio httpx
+
+      - name: Lint with ruff
+        run: ruff check .
+
+      - name: Run tests
+        run: pytest tests/ -v
+
+  deploy:
+    name: Deploy to Server
+    runs-on: [self-hosted, netdata-runner]
+    needs: lint-and-test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file from Secrets
+        # Мы создаем .env файл прямо на сервере перед запуском
+        run: |
+          echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" > .env
+          echo "LOG_LEVEL=${{ secrets.LOG_LEVEL || 'INFO' }}" >> .env
+
+      - name: Build and Run Container
+        run: |
+          # Команды из твоего README, адаптированные под автоматизацию
+          docker compose down --remove-orphans
+          docker compose up -d --build
+          
+          # Чистим старые образы, чтобы movies-runner не "задохнулся" от мусора
+          docker system prune -f
+          
+          echo "✅ Бот успешно запущен и работает в фоне"
